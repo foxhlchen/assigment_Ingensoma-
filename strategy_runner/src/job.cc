@@ -9,9 +9,23 @@ bool Job::Init(JobCtrl* control) {
 }
 
 void Job::Subscribe(std::string symbol) {
-    return ctrl_->Subscribe(symbol);
+    if (ctrl_)
+        return ctrl_->Subscribe(symbol);
 }
 
 long Job::Trade(TradeDirection direct, long qty, double price) {
-    return ctrl_->Trade(direct, qty, price);
+    if (ctrl_)
+        return ctrl_->Trade(direct, qty, price);
+
+    return -1;
+}
+
+void Job::GetOrders(std::vector<Order>& orders, OrderStatus status /* = kAll */) {
+    if (ctrl_)
+        return ctrl_->GetOrders(orders, status);
+}
+
+void Job::GetPosition(std::vector<Holding>& position) {
+    if (ctrl_)
+        return ctrl_->GetPosition(position);
 }

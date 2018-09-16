@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 enum TradeDirection {
     STOCK_BUY = 0,
@@ -72,11 +73,23 @@ private:
 struct TickData {
     std::string symbol;
 
+    long data_time;
+
     long bid_qty;
     long ask_qty;
 
     double bid_price;
     double ask_price;
+
+    bool Feed(std::string& line) {
+        std::istringstream iss(line);
+
+        //return iss >> data_time >> ask_qty >> bid_qty >> bid_price >> ask_price;
+        if(iss >> data_time >> ask_qty >> bid_qty >> bid_price >> ask_price)
+            return true;
+
+        return false;
+    }
 };
 
 #endif DATADEF_H_

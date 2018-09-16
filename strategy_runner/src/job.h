@@ -12,7 +12,7 @@ public:
 
     bool Init(JobCtrl* control);
 
-    // Interface for strategies
+    // Interfaces for strategies to implement
     virtual void OnStart() = 0;
     virtual void OnTick(TickData tickdata) = 0;
     virtual void OnFinished() = 0;
@@ -24,10 +24,11 @@ public:
     long Trade(TradeDirection direct, long qty, double price);
     long Buy(long qty, double price) { Trade(STOCK_BUY, qty, price); }
     long Sell(long qty, double price) { Trade(STOCK_SELL, qty, price); }
-    
+    void GetOrders(std::vector<Order>& orders, OrderStatus status = kAll);
+    void GetPosition(std::vector<Holding>& position);
 
 private:
-    JobCtrl* ctrl_;
+    JobCtrl* ctrl_ = nullptr;
 
 }; // class Job
 
