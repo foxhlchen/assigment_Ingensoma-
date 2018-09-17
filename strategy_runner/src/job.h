@@ -14,7 +14,7 @@ public:
 
     // Interfaces for strategies to implement
     virtual void OnStart() = 0;
-    virtual void OnTick(TickData tickdata) = 0;
+    virtual void OnTick(TickData& tickdata) = 0;
     virtual void OnFinished() = 0;
 
     // market data related functions

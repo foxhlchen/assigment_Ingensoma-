@@ -2,11 +2,16 @@
 #define STRATEGY1_H_
 
 #include "../job.h"
+#include <deque>
 
 class Strategy1 : public Job {
+public:
     virtual void OnStart();
-    virtual void OnTick(TickData tickdata);
+    virtual void OnTick(TickData& tickdata);
     virtual void OnFinished();
+
+private:
+    std::deque<TickData> tickcache_;
 };
 
 #endif //STRATEGY1_H_
