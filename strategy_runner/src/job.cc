@@ -13,6 +13,11 @@ void Job::Subscribe(std::string symbol) {
         return ctrl_->Subscribe(symbol);
 }
 
+void Job::CancelOrder(long order_sn) {
+    if (ctrl_)
+        return ctrl_->CancelOrder(order_sn);
+}
+
 long Job::Trade(TradeDirection direct, long qty, double price) {
     if (ctrl_)
         return ctrl_->Trade(direct, qty, price);

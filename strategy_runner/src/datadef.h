@@ -5,6 +5,18 @@
 #include <vector>
 #include <sstream>
 
+
+#define REG_STRATEGY(strategy)\
+class Creator_##strategy : public StrategyCreator \
+{\
+public: \
+Creator_##strategy() { StrategyFactor::RegisterStrategy(#strategy, this); } \
+Job* Create() { return new strategy(); }\
+};\
+Creator_##strategy strategy##_creator_instance;
+
+
+
 enum TradeDirection {
     STOCK_BUY = 0,
     STOCK_SELL = 1,
@@ -48,6 +60,10 @@ struct Order {
     double avg_filled_price;
 
     std::vector<Trasaction> transactions;
+
+    void Cancel() {
+        is_cancelled = true;
+    }
 
     OrderStatus GetStatus() {
         if (is_cancelled) 
