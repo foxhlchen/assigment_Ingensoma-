@@ -46,16 +46,24 @@ void Strategy1::OnTick(TickData& tickdata) {
     double avg = CalculateAverage(tickcache_);
     double mid = (tickdata.bid_price + tickdata.ask_price) / 2;
 
+    long pos = GetPosition()["60000344"].GetPosition();
+
     if (tickdata.data_time > stopbuy_until_) {
-        if (mid > avg) {
-            
-            BuyMarket(10);
+        if (mid > avg && pos + 10 <= 100) {
+            BuyMarket(symbol, 10);
+            stopbuy_until_ = TimeCalculation(tickdata.data_time, 2 * 60);
         }
     }
 
     if (tickdata.data_time > stopsell_until_) {
-
+        if (mid < avg && pos - 10 <= -100) {
+            SellMarket(symbol, 10);
+            stopbuy_until_ = TimeCalculation(tickdata.data_time, 2 * 60);
+        }
     }
+
+
+
 }
 
 void Strategy1::OnFinished() {

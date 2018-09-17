@@ -41,6 +41,10 @@ struct Holding {
     long sell_qty = 0;
     double buy_amount = 0;
     double sell_amount = 0;
+
+    long GetPosition() {
+        return buy_qty - sell_qty;
+    }
 };
 
 struct Trasaction {
