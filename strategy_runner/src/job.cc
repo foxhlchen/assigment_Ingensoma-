@@ -30,7 +30,7 @@ void Job::GetOrders(std::vector<Order>& orders, OrderStatus status /* = kAll */)
         return ctrl_->GetOrders(orders, status);
 }
 
-void Job::GetPosition(std::vector<Holding>& position) {
+std::map<std::string, Holding>& Job::GetPosition() {
     if (ctrl_)
-        return ctrl_->GetPosition(position);
+        return ctrl_->GetPosition();
 }

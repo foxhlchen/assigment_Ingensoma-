@@ -2,7 +2,6 @@
 #define STRATEGY2_H_
 
 #include "../job.h"
-#include "../strategy_factory.h"
 
 class Strategy2 : public Job {
     virtual void OnStart();

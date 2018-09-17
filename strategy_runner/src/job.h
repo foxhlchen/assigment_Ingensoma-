@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "datadef.h"
-
+#include <climits>
 
 class JobCtrl;
 
@@ -23,10 +23,12 @@ public:
     // trade related functions
     long Trade(TradeDirection direct, long qty, double price);
     void CancelOrder(long order_sn);
+    long BuyMarket(long qty) { Buy(qty, DBL_MAX); }
+    long SellMarket(long qty) { Sell(qty, DBL_MIN); }
     long Buy(long qty, double price) { Trade(STOCK_BUY, qty, price); }
     long Sell(long qty, double price) { Trade(STOCK_SELL, qty, price); }
     void GetOrders(std::vector<Order>& orders, OrderStatus status = kAll);
-    void GetPosition(std::vector<Holding>& position);
+    std::map<std::string, Holding>& GetPosition();
 
 private:
     JobCtrl* ctrl_ = nullptr;
