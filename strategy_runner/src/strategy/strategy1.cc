@@ -2,26 +2,37 @@
 #include "../datadef.h"
 #include "../strategy_factory.h"
 #include <deque>
+#include "../util.h"
 
 REG_STRATEGY(Strategy1);
 
+using util::TimeCalculation;
+
+const char* symbol = "60000344";
 
 static double CalculateAverage(std::deque<TickData>& tickcache) {
-    
+    double midavg = 0;
+
+    for (auto &tick : tickcache) {
+        midavg += (tick.ask_price + tick.bid_price) / 2;
+    }
+
+    return midavg / tickcache.size();
 }
 
-// offset format hhmmss  e.g. 2min = 200
-static void CacheData(std::deque<TickData>& tickcache, long offset, TickData& tickdata) {
+
+// span format hhmmss  e.g. 2min = 200
+static void CacheData(std::deque<TickData>& tickcache, long span, TickData& tickdata) {
     tickcache.push_back(tickdata);
 
     for ( ;; ) {
-        tickcache.front().data_time < tickdata.data_time - offset;
+        tickcache.front().data_time < TimeCalculation(tickdata.data_time, -span);
         tickcache.pop_front();
     }
 }
 
 void Strategy1::OnStart() {
-    Subscribe("60000344");
+    Subscribe(symbol);
 }
 
 void Strategy1::OnTick(TickData& tickdata) {
@@ -32,7 +43,19 @@ void Strategy1::OnTick(TickData& tickdata) {
         return;
     }
 
-    
+    double avg = CalculateAverage(tickcache_);
+    double mid = (tickdata.bid_price + tickdata.ask_price) / 2;
+
+    if (tickdata.data_time > stopbuy_until_) {
+        if (mid > avg) {
+            
+            BuyMarket(10);
+        }
+    }
+
+    if (tickdata.data_time > stopsell_until_) {
+
+    }
 }
 
 void Strategy1::OnFinished() {

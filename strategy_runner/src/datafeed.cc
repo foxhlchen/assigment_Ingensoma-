@@ -11,12 +11,21 @@ bool DataFeed::Init(std::string symbol) {
     return (bool) getline(infile_, line); // strip header
 }
 
-bool DataFeed::GetNextTick(TickData& tickdata) {
+bool DataFeed::GetCurrentTick(TickData& tickdata) {
+    tickdata = curr_;
+
+    return have_tick_;
+}
+
+bool DataFeed::LoadNextTick() {
     string line;
+    have_tick_ = false;
 
-    tickdata.symbol = symbol_;
-    if (! getline(infile_, line))
-        return false;
+    curr_ = TickData();
+    curr_.symbol = symbol_;
+    if (getline(infile_, line)) {
+        have_tick_ = curr_.Feed(line);
+    }
 
-    return tickdata.Feed(line);
+    return have_tick_;
 }

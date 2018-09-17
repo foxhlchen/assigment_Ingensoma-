@@ -2,6 +2,9 @@
 #include "job.h"
 #include "strategy_factory.h"
 #include "datadef.h"
+#include "util.h"
+
+using util::TimeCalculation;
 
 bool JobCtrl::Init(std::string jobname) {
     job_ = StrategyFactor::GetStrategy(jobname);
@@ -20,39 +23,72 @@ void JobCtrl::Run() {
     if (job_ == nullptr) 
         return;
 
+    // load first tick
+    for (auto &it: datafeed_) {
+        it.second.LoadNextTick();
+    }
+
     for (;;) {
-        TickData tickdata;
-        if ( !datafeed_.GetNextTick(tickdata) ) {
-            break;
+        /* This design allows strategies to subsribe multiple market symbols, 
+        *  so we have to aligh multiple data sources by time.
+        *  Although It's not necessary for this assginment,
+        *  But I want it to be implemented in a more universal way.
+        */
+
+        // find the next earliest tick;
+        _time_hhmmss_ = 150000;
+        for (auto &it: datafeed_) {
+            TickData tickdata;
+            if ( !it.second.GetCurrentTick(tickdata) ) {
+                continue;
+            }
+
+            if (_time_hhmmss_ > tickdata.data_time)
+                _time_hhmmss_ = tickdata.data_time;
         }
 
-        _time_hhmmss_ = tickdata.data_time;
+        if (_time_hhmmss_ == 150000)
+            break; // market closed
+        
 
-        MatchOrders(tickdata);
-        RecordProfitLoss(tickdata);
-        job_->OnTick(tickdata);
+        for (auto &it: datafeed_) {
+            TickData tickdata;
+            if ( !it.second.GetCurrentTick(tickdata) ) {
+                continue;
+            }
+
+            if (tickdata.data_time != _time_hhmmss_)
+                continue;
+
+            MatchOrders(tickdata);
+            RecordProfitLoss(tickdata);
+            job_->OnTick(tickdata);
+
+            it.second.LoadNextTick();
+        }
     }
 
     job_->OnFinished();
 }
 
 void JobCtrl::Subscribe(std::string symbol) {
-    datafeed_.Init(symbol);
+    datafeed_[symbol].Init(symbol);
 }
 
 void JobCtrl::RecordProfitLoss(TickData& tick) {
     Equity equity;
-    Holding& hold = position_[datafeed_.get_symbol()];
+    Holding& hold = position_[tick.symbol];
 
     double balance = hold.sell_amount - hold.buy_amount;
     long exposure = hold.buy_qty - hold.sell_qty;
+
     // exposure > 0, means in order to close position, you have to sell exposure qty.
     // for exposure < 0 you have to buy stock.
     double profitloss = exposure > 0 ? exposure * tick.bid_price : exposure * tick.ask_price;
     equity.equity = balance + profitloss;
 
     equity.data_time = tick.data_time;
-    equity_book_.push_back(equity);
+    equity_history_[tick.symbol].push_back(equity);
 }
 
 void JobCtrl::MatchOrders(TickData& tick) {
@@ -74,15 +110,15 @@ void JobCtrl::MatchOrders(TickData& tick) {
             trans.direct = order.direct;
             trans.price = tick.ask_price;
             trans.qty = turnover_vol;
-            trans.symbol = datafeed_.get_symbol();
+            trans.symbol = order.symbol;
             trans.time = tick.data_time;
             trans.trans_sn = transeq_++;
             
             order.transactions.push_back(trans);
 
-            position_[datafeed_.get_symbol()].symbol = datafeed_.get_symbol();
-            position_[datafeed_.get_symbol()].buy_qty += turnover_vol;
-            position_[datafeed_.get_symbol()].buy_amount += amount;
+            position_[order.symbol].symbol = order.symbol;
+            position_[order.symbol].buy_qty += turnover_vol;
+            position_[order.symbol].buy_amount += amount;
         }
         else if (order.direct == STOCK_SELL && order.order_price <= tick.bid_price) {
             long remain_tofill = order.order_qty - order.filled_qty;
@@ -97,24 +133,24 @@ void JobCtrl::MatchOrders(TickData& tick) {
             trans.direct = order.direct;
             trans.price = tick.bid_price;
             trans.qty = turnover_vol;
-            trans.symbol = datafeed_.get_symbol();
+            trans.symbol = order.symbol;
             trans.time = tick.data_time;
             trans.trans_sn = transeq_++;
             
             order.transactions.push_back(trans);
 
-            position_[datafeed_.get_symbol()].symbol = datafeed_.get_symbol();
-            position_[datafeed_.get_symbol()].sell_qty += turnover_vol;
-            position_[datafeed_.get_symbol()].sell_amount += amount;
+            position_[order.symbol].symbol = order.symbol;
+            position_[order.symbol].sell_qty += turnover_vol;
+            position_[order.symbol].sell_amount += amount;
         }
     }
 }
 
-long JobCtrl::Trade(TradeDirection direct, long qty, double price) {
+long JobCtrl::Trade(std::string symbol, TradeDirection direct, long qty, double price) {
     Order order;
 
     order.order_sn = orderseq_++;
-    order.symbol = datafeed_.get_symbol();
+    order.symbol = symbol;
     order.order_price = price;
     order.order_qty = qty;
     order.direct = direct;
@@ -132,9 +168,12 @@ void JobCtrl::CancelOrder(long order_sn) {
     }
 }
 
-void JobCtrl::GetOrders(std::vector<Order>& orders, OrderStatus status = kAll) {
+void JobCtrl::GetOrders(std::string symbol, std::vector<Order>& orders, OrderStatus status = kAll) {
     for (auto& it: orders_) {
         Order &order = it.second;
+
+        if (! symbol.empty() && order.symbol != symbol)
+            continue;
 
         if (status != kAll && order.GetStatus() != status) {
             continue;

@@ -12,6 +12,8 @@ public:
 
 private:
     std::deque<TickData> tickcache_;
+    long stopbuy_until_;
+    long stopsell_until_;
 };
 
 #endif //STRATEGY1_H_

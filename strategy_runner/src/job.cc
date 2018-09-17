@@ -18,16 +18,16 @@ void Job::CancelOrder(long order_sn) {
         return ctrl_->CancelOrder(order_sn);
 }
 
-long Job::Trade(TradeDirection direct, long qty, double price) {
+long Job::Trade(std::string symbol, TradeDirection direct, long qty, double price) {
     if (ctrl_)
-        return ctrl_->Trade(direct, qty, price);
+        return ctrl_->Trade(symbol, direct, qty, price);
 
     return -1;
 }
 
-void Job::GetOrders(std::vector<Order>& orders, OrderStatus status /* = kAll */) {
+void Job::GetOrders(std::string symbol, std::vector<Order>& orders, OrderStatus status /* = kAll */) {
     if (ctrl_)
-        return ctrl_->GetOrders(orders, status);
+        return ctrl_->GetOrders(symbol, orders, status);
 }
 
 std::map<std::string, Holding>& Job::GetPosition() {

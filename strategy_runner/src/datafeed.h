@@ -8,12 +8,15 @@
 class DataFeed {
 public:
     bool Init(std::string symbol);
-    bool GetNextTick(TickData& tickdata);
+    bool GetCurrentTick(TickData& tickdata);
+    bool LoadNextTick();
     std::string& get_symbol() { return symbol_; }
 
 private:
+    TickData curr_;
     std::string symbol_;
     std::ifstream infile_;
+    bool have_tick_ = false;
 }; // class datafeed
 
 #endif DATAFEED_H_
