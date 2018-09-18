@@ -47,14 +47,14 @@ void Runner::Run() {
     // plot each strategies respectively.
     for (auto& jobctrl : jobctrls_) {
         InitPlot();
-        jobctrl.Plot();
+        jobctrl->Plot();
         Plot();
     }
 
     // plot each strategies all together.
     InitPlot();
     for (auto& jobctrl : jobctrls_) {
-        jobctrl.Plot();
+        jobctrl->Plot();
     }
     Plot();
 

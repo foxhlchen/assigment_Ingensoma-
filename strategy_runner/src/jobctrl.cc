@@ -5,6 +5,7 @@
 #include "util.h"
 #include <iostream>
 #include <vector>
+#include "matplotlibcpp.h"
 
 using util::TimeCalculation;
 namespace plt = matplotlibcpp;
@@ -240,10 +241,10 @@ void JobCtrl::GetOrders(std::string symbol, std::vector<Order>& orders, OrderSta
 }
 
 void JobCtrl::Plot() {
-    std::vector<long> time;
+    std::vector<double> time;
     std::vector<double> profitloss;
     for (auto &item : equity_history_) {
-        std::string &symbol = item.first;
+        const std::string &symbol = item.first;
         for (auto &entry : item.second) {
             time.push_back(entry.data_time);
             profitloss.push_back(entry.profitloss);
