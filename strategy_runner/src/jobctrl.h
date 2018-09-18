@@ -23,6 +23,8 @@ public:
 
     void SetInitialBalance(long value) { initial_balance_ = value; }
 
+    void Plot();
+
 private:
     void MatchOrders(TickData& tick);
     void RecordProfitLoss(TickData& tick);
@@ -36,6 +38,7 @@ private:
     Job* job_ = nullptr;
     long initial_balance_ = 0;
 
+    std::string strategy_name_;
     std::map<std::string, std::list<Equity>> equity_history_;
 }; // class JobCtrl
 

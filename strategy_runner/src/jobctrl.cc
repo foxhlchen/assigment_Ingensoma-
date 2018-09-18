@@ -4,11 +4,15 @@
 #include "datadef.h"
 #include "util.h"
 #include <iostream>
+#include <vector>
 
 using util::TimeCalculation;
+namespace plt = matplotlibcpp;
 
 bool JobCtrl::Init(std::string jobname) {
     std::cout << "Initiallize " << jobname << std::endl;
+
+    strategy_name_ = jobname;
     job_ = StrategyFactor::Singleton()->GetStrategy(jobname);
 
     if (job_ == nullptr)
@@ -232,6 +236,24 @@ void JobCtrl::GetOrders(std::string symbol, std::vector<Order>& orders, OrderSta
         }
 
         orders.push_back(order);
+    }
+}
+
+void JobCtrl::Plot() {
+    std::vector<long> time;
+    std::vector<double> profitloss;
+    for (auto &item : equity_history_) {
+        std::string &symbol = item.first;
+        for (auto &entry : item.second) {
+            time.push_back(entry.data_time);
+            profitloss.push_back(entry.profitloss);
+        }
+
+        std::string plotname = strategy_name_ + "-" + symbol;
+        plt::named_plot(plotname, time, profitloss);
+
+        time.clear();
+        profitloss.clear();
     }
 }
 

@@ -11,6 +11,8 @@ public:
     bool Init(std::vector<std::string> jobs_to_run);
     void Run();
 
+    void InitPlot();
+    void Plot();
 private:
     std::vector<JobCtrl*> jobctrls_;
     std::vector<std::thread *> threads_;
