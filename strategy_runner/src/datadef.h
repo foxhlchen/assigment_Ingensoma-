@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 
+#define LOGVAR(var) " "  #var ":" << var
 
 #define REG_STRATEGY(strategy)\
 class Creator_##strategy : public StrategyCreator \
@@ -54,7 +55,7 @@ struct Holding {
 struct Trasaction {
     long trans_sn = 0;
 
-    std::string symbol = 0;
+    std::string symbol;
     TradeDirection direct;
     long time = 0;
     long qty = 0;

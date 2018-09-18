@@ -50,7 +50,7 @@ void JobCtrl::Run() {
                 _time_hhmmss_ = tickdata.data_time;
         }
 
-        std::cout << _time_hhmmss_ << std::endl;
+        //std::cout << _time_hhmmss_ << std::endl;
         if (_time_hhmmss_ == 150000)
             break; // market closed
         
@@ -103,6 +103,13 @@ void JobCtrl::RecordProfitLoss(TickData& tick) {
 
     equity_entry.data_time = tick.data_time;
     equity_history_[tick.symbol].push_back(equity_entry);
+
+/*     std::cout << LOGVAR(hold.balance) << std::endl;
+    std::cout << LOGVAR(hold.exposure) << std::endl;
+    std::cout << LOGVAR(hold.unclosed_value) << std::endl;
+    std::cout << LOGVAR(hold.profitloss) << std::endl;
+    std::cout << LOGVAR(hold.equity) << std::endl;
+    std::cout << "=====================" << std::endl; */
 }
 
 void JobCtrl::MatchOrders(TickData& tick) {
@@ -169,6 +176,25 @@ long JobCtrl::Trade(std::string symbol, TradeDirection direct, long qty, double 
     order.order_qty = qty;
     order.direct = direct;
     order.order_time = _time_hhmmss_;
+
+    Holding& hold = position_[symbol];
+    if (hold.profitloss) {
+        std::cout << "=====================" << std::endl;
+        std::cout << LOGVAR(hold.balance) << std::endl;
+        std::cout << LOGVAR(hold.exposure) << std::endl;
+        std::cout << LOGVAR(hold.unclosed_value) << std::endl;
+        std::cout << LOGVAR(hold.profitloss) << std::endl;
+        std::cout << LOGVAR(hold.equity) << std::endl;
+        std::cout << "*********************" << std::endl;
+        std::cout << LOGVAR(order.order_sn) << std::endl;
+        std::cout << LOGVAR(order.symbol) << std::endl;
+        std::cout << LOGVAR(order.order_price) << std::endl;
+        std::cout << LOGVAR(order.order_qty) << std::endl;
+        std::cout << LOGVAR(order.direct) << std::endl;
+        std::cout << LOGVAR(order.order_time) << std::endl;
+        std::cout << "=====================" << std::endl;
+    }
+
 
     orders_[order.order_sn] = order;
 

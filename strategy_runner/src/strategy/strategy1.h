@@ -13,9 +13,9 @@ public:
     void ClearPosition();
 private:
     std::deque<TickData> tickcache_;
-    long stopbuy_until_;
-    long stopsell_until_;
-    double balance_;
+    long stopbuy_until_ = 0;
+    long stopsell_until_ = 0;
+    double balance_ = 0;
     bool safelimit3 = false;
 };
 

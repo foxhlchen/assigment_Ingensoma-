@@ -10,9 +10,11 @@ REG_STRATEGY(Strategy1);
 
 using util::TimeCalculation;
 using std::vector;
+using std::cout;
+using std::endl;
 
 static const char* kSymbol = "60000344";
-static const int kBalance = 1000;
+static const double kBalance = 100000;
 
 static double CalculateAverage(std::deque<TickData>& tickcache) {
     double midavg = 0;
@@ -65,6 +67,11 @@ void Strategy1::OnStart() {
 }
 
 void Strategy1::OnTick(TickData& tickdata) {
+    if (balance_ < 0) {
+        return; // congratulations! you go bankrupt.
+    }
+
+
     CacheData(tickcache_, 200, tickdata);
 
     // wait 120 second to collect sufficient price data
@@ -75,6 +82,8 @@ void Strategy1::OnTick(TickData& tickdata) {
     double avg = CalculateAverage(tickcache_);
     double mid = (tickdata.bid_price + tickdata.ask_price) / 2;
 
+    //cout << LOGVAR(avg) << LOGVAR(mid) << LOGVAR((mid > avg)) << endl;
+
     Holding &hold = GetPosition()[kSymbol];
     long pos = hold.exposure;
 
@@ -84,9 +93,15 @@ void Strategy1::OnTick(TickData& tickdata) {
 
         balance_ = hold.equity;
         safelimit3 = false;
+
+        cout << "lift safelimit3" <<endl;
+        cout << LOGVAR(hold.equity) << LOGVAR(balance_) << endl;
     }
 
     if (hold.equity / balance_ < 0.98) {
+        cout << LOGVAR(hold.equity) << LOGVAR(balance_) << endl;
+        cout << "trigger safelimit3" <<endl;
+        
         safelimit3 = true;
         stopbuy_until_ = TimeCalculation(tickdata.data_time, 10 * 60);
         stopsell_until_ = TimeCalculation(tickdata.data_time, 10 * 60);
@@ -101,9 +116,9 @@ void Strategy1::OnTick(TickData& tickdata) {
     }
 
     if (tickdata.data_time > stopsell_until_) {
-        if (mid < avg && pos - 10 <= -100) {
+        if (mid < avg && pos - 10 >= -100) {
             SellMarket(kSymbol, 10);
-            stopbuy_until_ = TimeCalculation(tickdata.data_time, 2 * 60);
+            stopsell_until_ = TimeCalculation(tickdata.data_time, 2 * 60);
         }
     }
 }

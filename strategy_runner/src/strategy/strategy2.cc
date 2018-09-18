@@ -10,9 +10,11 @@ REG_STRATEGY(Strategy2);
 
 using util::TimeCalculation;
 using std::vector;
+using std::cout;
+using std::endl;
 
 static const char* kSymbol = "60000364";
-static const int kBalance = 1000;
+static const double kBalance = (long) 100000000;
 
 
 static double CalculateAverage(std::deque<TickData>& tickcache) {
@@ -38,7 +40,6 @@ static void CacheData(std::deque<TickData>& tickcache, long span, TickData& tick
     }
 }
 
-
 void Strategy2::ClearPosition() {
     Holding &hold = GetPosition()[kSymbol];
     vector<Order> orders;
@@ -60,7 +61,6 @@ void Strategy2::ClearPosition() {
     }
 }
 
-
 void Strategy2::OnStart() {
     Subscribe(kSymbol);
     balance_ = kBalance;
@@ -68,15 +68,22 @@ void Strategy2::OnStart() {
 }
 
 void Strategy2::OnTick(TickData& tickdata) {
+    if (balance_ < 0) {
+        return; // congratulations! you go bankrupt.
+    }
+
+
     CacheData(tickcache_, 300, tickdata);
 
-    // wait 180 second to collect sufficient price data
+    // wait 120 second to collect sufficient price data
     if (tickdata.data_time <= 90300) {
         return;
     }
 
     double avg = CalculateAverage(tickcache_);
     double mid = (tickdata.bid_price + tickdata.ask_price) / 2;
+
+    //cout << LOGVAR(avg) << LOGVAR(mid) << LOGVAR((mid > avg)) << endl;
 
     Holding &hold = GetPosition()[kSymbol];
     long pos = hold.exposure;
@@ -88,9 +95,14 @@ void Strategy2::OnTick(TickData& tickdata) {
         balance_ = hold.equity;
         safelimit3 = false;
 
+        cout << "lift safelimit3" <<endl;
+        cout << LOGVAR(hold.equity) << LOGVAR(balance_) << endl;
     }
 
     if (hold.equity / balance_ < 0.96) {
+        cout << LOGVAR(hold.equity) << LOGVAR(balance_) << endl;
+        cout << "trigger safelimit3" <<endl;
+        
         safelimit3 = true;
         stopbuy_until_ = TimeCalculation(tickdata.data_time, 10 * 60);
         stopsell_until_ = TimeCalculation(tickdata.data_time, 10 * 60);
@@ -105,9 +117,9 @@ void Strategy2::OnTick(TickData& tickdata) {
     }
 
     if (tickdata.data_time > stopsell_until_) {
-        if (mid < avg && pos - 10 <= -100) {
+        if (mid < avg && pos - 20 >= -100) {
             SellMarket(kSymbol, 20);
-            stopbuy_until_ = TimeCalculation(tickdata.data_time, 4 * 60);
+            stopsell_until_ = TimeCalculation(tickdata.data_time, 4 * 60);
         }
     }
 }
