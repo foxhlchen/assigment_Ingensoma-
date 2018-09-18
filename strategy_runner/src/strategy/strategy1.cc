@@ -3,12 +3,15 @@
 #include "../strategy_factory.h"
 #include <deque>
 #include "../util.h"
+#include <vector>
 
 REG_STRATEGY(Strategy1);
 
 using util::TimeCalculation;
+using std::vector;
 
-const char* symbol = "60000344";
+static const char* kSymbol = "60000344";
+static const int kBalance = 1000;
 
 static double CalculateAverage(std::deque<TickData>& tickcache) {
     double midavg = 0;
@@ -31,8 +34,31 @@ static void CacheData(std::deque<TickData>& tickcache, long span, TickData& tick
     }
 }
 
+void Strategy1::ClearPosition() {
+    Holding &hold = GetPosition()[kSymbol];
+    vector<Order> orders;
+    GetOrders(kSymbol, orders, OrderStatus::kSubmitted);
+    GetOrders(kSymbol, orders, OrderStatus::kPartial);
+
+    for (auto &order: orders) {
+        order.Cancel();
+    }
+
+    // close buy order
+    if (hold.exposure > 0) {
+        SellMarket(kSymbol, hold.exposure);
+    }
+
+    // close sell order
+    if (hold.exposure < 0) {
+        BuyMarket(kSymbol, hold.exposure);
+    }
+}
+
 void Strategy1::OnStart() {
-    Subscribe(symbol);
+    Subscribe(kSymbol);
+    balance_ = kBalance;
+    SetInitialBalance(balance_);
 }
 
 void Strategy1::OnTick(TickData& tickdata) {
@@ -46,24 +72,37 @@ void Strategy1::OnTick(TickData& tickdata) {
     double avg = CalculateAverage(tickcache_);
     double mid = (tickdata.bid_price + tickdata.ask_price) / 2;
 
-    long pos = GetPosition()["60000344"].GetPosition();
+    Holding &hold = GetPosition()[kSymbol];
+    long pos = hold.exposure;
+
+    if (safelimit3) {
+        if (tickdata.data_time <= stopbuy_until_)
+            return;
+
+        balance_ = hold.equity;
+        safelimit3 = false;
+    }
+
+    if (hold.equity / balance_ < 0.98) {
+        safelimit3 = true;
+        stopbuy_until_ = TimeCalculation(tickdata.data_time, 10 * 60);
+        stopsell_until_ = TimeCalculation(tickdata.data_time, 10 * 60);
+        ClearPosition();
+    }
 
     if (tickdata.data_time > stopbuy_until_) {
         if (mid > avg && pos + 10 <= 100) {
-            BuyMarket(symbol, 10);
+            BuyMarket(kSymbol, 10);
             stopbuy_until_ = TimeCalculation(tickdata.data_time, 2 * 60);
         }
     }
 
     if (tickdata.data_time > stopsell_until_) {
         if (mid < avg && pos - 10 <= -100) {
-            SellMarket(symbol, 10);
+            SellMarket(kSymbol, 10);
             stopbuy_until_ = TimeCalculation(tickdata.data_time, 2 * 60);
         }
     }
-
-
-
 }
 
 void Strategy1::OnFinished() {

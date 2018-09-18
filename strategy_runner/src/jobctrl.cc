@@ -76,7 +76,7 @@ void JobCtrl::Subscribe(std::string symbol) {
 }
 
 void JobCtrl::RecordProfitLoss(TickData& tick) {
-    Equity equity;
+    Equity equity_entry;
     Holding& hold = position_[tick.symbol];
 
     double balance = hold.sell_amount - hold.buy_amount;
@@ -84,11 +84,21 @@ void JobCtrl::RecordProfitLoss(TickData& tick) {
 
     // exposure > 0, means in order to close position, you have to sell exposure qty.
     // for exposure < 0 you have to buy stock.
-    double profitloss = exposure > 0 ? exposure * tick.bid_price : exposure * tick.ask_price;
-    equity.equity = balance + profitloss;
+    double unclosed_value = exposure > 0 ? exposure * tick.bid_price : exposure * tick.ask_price;
 
-    equity.data_time = tick.data_time;
-    equity_history_[tick.symbol].push_back(equity);
+    double profitloss = balance + unclosed_value;
+
+    hold.balance = balance;
+    hold.exposure = exposure;
+    hold.unclosed_value = unclosed_value;
+    hold.profitloss = profitloss;
+    hold.equity = profitloss + initial_balance_;
+
+    equity_entry.profitloss = profitloss;
+    equity_entry.equity = profitloss + initial_balance_;
+
+    equity_entry.data_time = tick.data_time;
+    equity_history_[tick.symbol].push_back(equity_entry);
 }
 
 void JobCtrl::MatchOrders(TickData& tick) {
@@ -161,14 +171,16 @@ long JobCtrl::Trade(std::string symbol, TradeDirection direct, long qty, double 
     return order.order_sn;
 }
 
-
 void JobCtrl::CancelOrder(long order_sn) {
     if (orders_.find(order_sn) != orders_.end()) {
         orders_[order_sn].Cancel();
     }
 }
 
-void JobCtrl::GetOrders(std::string symbol, std::vector<Order>& orders, OrderStatus status = kAll) {
+void JobCtrl::GetOrders(std::string symbol, std::vector<Order>& orders, OrderStatus status /* = kAll*/) {
+    // because rules of every stock exchanges are varied, 
+    // To keep it simple, we don't consider if we have enough money to buy/sell stock here.
+
     for (auto& it: orders_) {
         Order &order = it.second;
 
@@ -182,7 +194,6 @@ void JobCtrl::GetOrders(std::string symbol, std::vector<Order>& orders, OrderSta
         orders.push_back(order);
     }
 }
-
 
 std::map<std::string, Holding>& JobCtrl::GetPosition() {
     return position_;

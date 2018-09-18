@@ -21,6 +21,8 @@ public:
     void GetOrders(std::string symbol, std::vector<Order>& orders, OrderStatus status = kAll);
     std::map<std::string, Holding>& GetPosition();
 
+    void SetInitialBalance(long value) { initial_balance_ = value; }
+
 private:
     void MatchOrders(TickData& tick);
     void RecordProfitLoss(TickData& tick);
@@ -32,6 +34,7 @@ private:
     long transeq_ = 0;
     long _time_hhmmss_;
     Job* job_ = nullptr;
+    long initial_balance_ = 0;
 
     std::map<std::string, std::list<Equity>> equity_history_;
 }; // class JobCtrl

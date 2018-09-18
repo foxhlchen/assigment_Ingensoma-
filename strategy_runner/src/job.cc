@@ -34,3 +34,8 @@ std::map<std::string, Holding>& Job::GetPosition() {
     if (ctrl_)
         return ctrl_->GetPosition();
 }
+
+void Job::SetInitialBalance(long value) {
+    if (ctrl_)
+        return ctrl_->SetInitialBalance(value);
+}

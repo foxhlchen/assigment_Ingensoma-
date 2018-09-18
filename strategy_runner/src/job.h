@@ -28,6 +28,7 @@ public:
     long Buy(std::string symbol, long qty, double price) { Trade(symbol, STOCK_BUY, qty, price); }
     long Sell(std::string symbol, long qty, double price) { Trade(symbol, STOCK_SELL, qty, price); }
     void GetOrders(std::string symbol, std::vector<Order>& orders, OrderStatus status = kAll);
+    void SetInitialBalance(long value);
     std::map<std::string, Holding>& GetPosition();
 
 private:

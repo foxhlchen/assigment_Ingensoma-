@@ -14,6 +14,8 @@ private:
     std::deque<TickData> tickcache_;
     long stopbuy_until_;
     long stopsell_until_;
+    double balance_;
+    bool safelimit3 = false;
 };
 
 #endif //STRATEGY1_H_

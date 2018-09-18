@@ -32,6 +32,7 @@ enum OrderStatus {
 
 struct Equity{
     long data_time = 0;
+    double profitloss = 0;
     double equity = 0;
 };
 
@@ -42,9 +43,12 @@ struct Holding {
     double buy_amount = 0;
     double sell_amount = 0;
 
-    long GetPosition() {
-        return buy_qty - sell_qty;
-    }
+    //calculation result
+    double balance = 0;
+    long exposure = 0;
+    double unclosed_value = 0;
+    double profitloss = 0;
+    double equity = 0;
 };
 
 struct Trasaction {
