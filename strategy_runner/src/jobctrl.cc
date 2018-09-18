@@ -104,6 +104,9 @@ void JobCtrl::RecordProfitLoss(TickData& tick) {
     equity_entry.data_time = tick.data_time;
     equity_history_[tick.symbol].push_back(equity_entry);
 
+/*     if (equity_entry.profitloss > 0) {
+        std::cout << LOGVAR(equity_entry.profitloss) << std::endl;
+    } */
 /*     std::cout << LOGVAR(hold.balance) << std::endl;
     std::cout << LOGVAR(hold.exposure) << std::endl;
     std::cout << LOGVAR(hold.unclosed_value) << std::endl;
@@ -178,22 +181,29 @@ long JobCtrl::Trade(std::string symbol, TradeDirection direct, long qty, double 
     order.order_time = _time_hhmmss_;
 
     Holding& hold = position_[symbol];
-    if (hold.profitloss) {
-        std::cout << "=====================" << std::endl;
-        std::cout << LOGVAR(hold.balance) << std::endl;
-        std::cout << LOGVAR(hold.exposure) << std::endl;
-        std::cout << LOGVAR(hold.unclosed_value) << std::endl;
-        std::cout << LOGVAR(hold.profitloss) << std::endl;
-        std::cout << LOGVAR(hold.equity) << std::endl;
-        std::cout << "*********************" << std::endl;
-        std::cout << LOGVAR(order.order_sn) << std::endl;
-        std::cout << LOGVAR(order.symbol) << std::endl;
-        std::cout << LOGVAR(order.order_price) << std::endl;
-        std::cout << LOGVAR(order.order_qty) << std::endl;
-        std::cout << LOGVAR(order.direct) << std::endl;
-        std::cout << LOGVAR(order.order_time) << std::endl;
-        std::cout << "=====================" << std::endl;
-    }
+/*  std::cout << "=====================" << std::endl;
+    std::cout << LOGVAR(hold.balance) << std::endl;
+    std::cout << LOGVAR(hold.exposure) << std::endl;
+    std::cout << LOGVAR(hold.unclosed_value) << std::endl;
+    std::cout << LOGVAR(hold.profitloss) << std::endl;
+    std::cout << LOGVAR(hold.equity) << std::endl;
+    std::cout << "*********************" << std::endl;
+    std::cout << LOGVAR(order.order_sn) << std::endl;
+    std::cout << LOGVAR(order.symbol) << std::endl;
+    std::cout << LOGVAR(order.order_price) << std::endl;
+    std::cout << LOGVAR(order.order_qty) << std::endl;
+    std::cout << LOGVAR(order.direct) << std::endl;
+    std::cout << LOGVAR(order.order_time) << std::endl;
+    std::cout << "=====================" << std::endl; */
+
+    std::cout << LOGVAR(hold.balance) << 
+    LOGVAR(hold.exposure) << 
+    LOGVAR(hold.unclosed_value) << LOGVAR(hold.profitloss) << LOGVAR(hold.equity) << std::endl;
+    std::cout <<
+    LOGVAR(order.order_sn) << LOGVAR(order.symbol) << LOGVAR(order.order_price) << 
+    LOGVAR(order.order_qty) << LOGVAR(order.direct) << LOGVAR(order.order_time) << std::endl;
+
+    std::cout << std::endl; 
 
 
     orders_[order.order_sn] = order;

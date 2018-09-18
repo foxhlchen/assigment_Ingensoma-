@@ -14,7 +14,7 @@ using std::cout;
 using std::endl;
 
 static const char* kSymbol = "60000364";
-static const double kBalance = (long) 100000000;
+static const double kBalance = (long) 10000000;
 
 
 static double CalculateAverage(std::deque<TickData>& tickcache) {
