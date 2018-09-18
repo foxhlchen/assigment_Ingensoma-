@@ -17,4 +17,4 @@ private:
 
 }; // class Runner
 
-#endif RUNNER_H_
+#endif //RUNNER_H_

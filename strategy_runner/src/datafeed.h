@@ -19,4 +19,4 @@ private:
     bool have_tick_ = false;
 }; // class datafeed
 
-#endif DATAFEED_H_
+#endif // DATAFEED_H_

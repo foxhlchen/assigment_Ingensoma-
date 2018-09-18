@@ -10,7 +10,7 @@
 class Creator_##strategy : public StrategyCreator \
 {\
 public: \
-Creator_##strategy() { StrategyFactor::RegisterStrategy(#strategy, this); } \
+Creator_##strategy() { StrategyFactor::Singleton()->RegisterStrategy(#strategy, this); std::cout<<"ok"<<std::endl; } \
 Job* Create() { return new strategy(); }\
 };\
 Creator_##strategy strategy##_creator_instance;
@@ -120,7 +120,8 @@ struct TickData {
     double bid_price = 0;
     double ask_price = 0;
 
-    bool Feed(std::string& line) {
+    bool Feed(std::string& line);
+/*     bool Feed(std::string& line) {
         std::istringstream iss(line);
 
         //return iss >> data_time >> ask_qty >> bid_qty >> bid_price >> ask_price;
@@ -128,9 +129,9 @@ struct TickData {
             return true;
 
         return false;
-    }
+    } */
 };
 
 
 
-#endif DATADEF_H_
+#endif // DATADEF_H_

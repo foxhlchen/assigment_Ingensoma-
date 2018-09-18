@@ -3,11 +3,13 @@
 #include "strategy_factory.h"
 #include "datadef.h"
 #include "util.h"
+#include <iostream>
 
 using util::TimeCalculation;
 
 bool JobCtrl::Init(std::string jobname) {
-    job_ = StrategyFactor::GetStrategy(jobname);
+    std::cout << "Initiallize " << jobname << std::endl;
+    job_ = StrategyFactor::Singleton()->GetStrategy(jobname);
 
     if (job_ == nullptr)
         return false;
@@ -28,6 +30,7 @@ void JobCtrl::Run() {
         it.second.LoadNextTick();
     }
 
+    std::cout << "Running... " << std::endl;
     for (;;) {
         /* This design allows strategies to subsribe multiple market symbols, 
         *  so we have to aligh multiple data sources by time.
@@ -47,6 +50,7 @@ void JobCtrl::Run() {
                 _time_hhmmss_ = tickdata.data_time;
         }
 
+        std::cout << _time_hhmmss_ << std::endl;
         if (_time_hhmmss_ == 150000)
             break; // market closed
         

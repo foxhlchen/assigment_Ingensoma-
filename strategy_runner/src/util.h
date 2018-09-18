@@ -7,4 +7,4 @@ long TimeCalculation(long curr, long span);
 
 } // namespace util
 
-#endif UTIL_H_
+#endif //UTIL_H_

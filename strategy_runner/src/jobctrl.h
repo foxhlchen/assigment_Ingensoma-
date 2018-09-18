@@ -39,4 +39,4 @@ private:
     std::map<std::string, std::list<Equity>> equity_history_;
 }; // class JobCtrl
 
-#endif JOBCTRL_H_
+#endif //JOBCTRL_H_

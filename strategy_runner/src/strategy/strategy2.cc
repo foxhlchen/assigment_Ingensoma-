@@ -4,6 +4,7 @@
 #include <deque>
 #include <vector>
 #include "../util.h"
+#include <iostream>
 
 REG_STRATEGY(Strategy2);
 
@@ -30,7 +31,9 @@ static void CacheData(std::deque<TickData>& tickcache, long span, TickData& tick
     tickcache.push_back(tickdata);
 
     for ( ;; ) {
-        tickcache.front().data_time < TimeCalculation(tickdata.data_time, -span);
+        if (tickcache.front().data_time > TimeCalculation(tickdata.data_time, -span))
+            break;
+        
         tickcache.pop_front();
     }
 }

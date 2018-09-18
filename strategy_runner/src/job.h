@@ -3,7 +3,8 @@
 
 #include <vector>
 #include "datadef.h"
-#include <climits>
+#include <cfloat>
+#include <map>
 
 class JobCtrl;
 
@@ -36,4 +37,4 @@ private:
 
 }; // class Job
 
-#endif JOB_H_
+#endif //JOB_H_

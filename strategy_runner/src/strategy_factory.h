@@ -4,26 +4,24 @@
 #include "job.h"
 #include <string>
 #include <map>
+#include <iostream>
 
 class StrategyCreator {
 public:
-    Job* Create();
+    virtual Job* Create() = 0;
 };
 
 class StrategyFactor {
 public:
-    static Job* GetStrategy(std::string strategy_name) {
-        if (register_book_.find(strategy_name) != register_book_.end()) {
-            return register_book_[strategy_name]->Create();
-        }
-    }
+    Job* GetStrategy(std::string strategy_name);
 
-    static void RegisterStrategy(std::string strategy_name, StrategyCreator* creator) {
-        register_book_[strategy_name] = creator;
-    }
+    void RegisterStrategy(std::string strategy_name, StrategyCreator* creator);
+
+    static StrategyFactor* Singleton();
 
 private:
-    static std::map<std::string, StrategyCreator*> register_book_;
+    std::map<std::string, StrategyCreator*> register_book_;
+    static StrategyFactor* inst_;
 };
 
 #endif //STRATEGY_FACTORY_H_

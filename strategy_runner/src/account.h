@@ -9,4 +9,4 @@ public:
 
 }; // class Account
 
-#endif ACCOUNT_H_
+#endif //ACCOUNT_H_

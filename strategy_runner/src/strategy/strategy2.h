@@ -20,3 +20,6 @@ private:
 };
 
 #endif //STRATEGY2_H_
+
+
+

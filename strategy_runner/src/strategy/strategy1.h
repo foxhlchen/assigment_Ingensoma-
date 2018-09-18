@@ -10,6 +10,7 @@ public:
     virtual void OnTick(TickData& tickdata);
     virtual void OnFinished();
 
+    void ClearPosition();
 private:
     std::deque<TickData> tickcache_;
     long stopbuy_until_;
