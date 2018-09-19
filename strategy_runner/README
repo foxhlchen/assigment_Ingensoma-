@@ -16,6 +16,6 @@ Next to compiler it:
     ./configure --prefix=<installed dir>
     make && make install
 
-Then create a directory called `data` in <installed dir>, then put market datafiles into this directory.
+Create a directory called `data` in <installed dir>, then put market datafiles into this directory.
 start startegy-runner by:
     ./runner
