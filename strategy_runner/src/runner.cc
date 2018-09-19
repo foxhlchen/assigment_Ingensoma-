@@ -8,7 +8,7 @@ using namespace std;
 
 void Runner::InitPlot() {
     // clear figure, but leaves window opened.
-    plt::clf();
+    //plt::clf();
     // Set the size of output image = 1200x780 pixels
     plt::figure_size(1200, 780);
 }
@@ -42,6 +42,11 @@ void Runner::Run() {
     for (auto& t : threads_) {
         t->join();
         delete t;
+    }
+
+    // save data of each strategies respectively.
+    for (auto& jobctrl : jobctrls_) {
+        jobctrl->SaveDataTable();
     }
 
     // plot each strategies respectively.

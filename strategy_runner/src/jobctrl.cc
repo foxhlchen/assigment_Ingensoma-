@@ -6,6 +6,8 @@
 #include <iostream>
 #include <vector>
 #include "matplotlibcpp.h"
+#include <fstream>
+#include <cfloat>
 
 using util::TimeCalculation;
 namespace plt = matplotlibcpp;
@@ -37,10 +39,9 @@ void JobCtrl::Run() {
 
     std::cout << "Running... " << std::endl;
     for (;;) {
-        /* This design allows strategies to subsribe multiple market symbols, 
-        *  so we have to aligh multiple data sources by time.
-        *  Although It's not necessary for this assginment,
-        *  But I want it to be implemented in a more universal way.
+        /* Although It's not necessary for this assginment,
+        *  This design allows strategies to subsribe multiple market symbols, 
+        *  so that we have to aligh multiple data sources by time.
         */
 
         // find the next earliest tick;
@@ -103,21 +104,14 @@ void JobCtrl::RecordProfitLoss(TickData& tick) {
     hold.profitloss = profitloss;
     hold.equity = profitloss + initial_balance_;
 
+    // equity = sum of all profitloss of all symbols + initial_balance;
+    // since in this assginment we only hold one symbol in strategies,
+    // I only consider one symbol scenario, but it's easy to extend to multi symbols.
     equity_entry.profitloss = profitloss;
     equity_entry.equity = profitloss + initial_balance_;
 
     equity_entry.data_time = tick.data_time;
     equity_history_[tick.symbol].push_back(equity_entry);
-
-/*     if (equity_entry.profitloss > 0) {
-        std::cout << LOGVAR(equity_entry.profitloss) << std::endl;
-    } */
-/*     std::cout << LOGVAR(hold.balance) << std::endl;
-    std::cout << LOGVAR(hold.exposure) << std::endl;
-    std::cout << LOGVAR(hold.unclosed_value) << std::endl;
-    std::cout << LOGVAR(hold.profitloss) << std::endl;
-    std::cout << LOGVAR(hold.equity) << std::endl;
-    std::cout << "=====================" << std::endl; */
 }
 
 void JobCtrl::MatchOrders(TickData& tick) {
@@ -223,7 +217,7 @@ void JobCtrl::CancelOrder(long order_sn) {
 }
 
 void JobCtrl::GetOrders(std::string symbol, std::vector<Order>& orders, OrderStatus status /* = kAll*/) {
-    // because rules of every stock exchanges are varied, 
+    // because the rules of every stock exchanges are varied, 
     // To keep it simple, we don't consider if we have enough money to buy/sell stock here.
 
     for (auto& it: orders_) {
@@ -256,6 +250,33 @@ void JobCtrl::Plot() {
         time.clear();
         profitloss.clear();
     }
+}
+
+void JobCtrl::SaveDataTable() {
+    std::cout << "Save Data to file data/" << strategy_name_ << ".orders.csv" << std::endl;
+    
+    std::ofstream outfile("data/" + strategy_name_ + ".orders.csv");
+
+    outfile << "order_number,order_time,symbol,direct,order_qty,order_price,turnover_qty,turnover_price,turnover_amount" << std::endl;
+
+    for (auto &item : orders_) {
+        const Order& order = item.second;
+        outfile << order.order_sn << ",";
+        outfile << order.order_time << ",";
+        outfile << order.symbol << ",";
+        outfile << order.direct << ",";
+        outfile << order.order_qty << ",";
+        if (order.order_price == DBL_MAX || order.order_price == DBL_MIN) {
+            outfile << "Market" << ",";
+        } else {
+            outfile << order.order_price << ",";
+        }
+        outfile << order.filled_qty << ",";
+        outfile << order.avg_filled_price << ",";
+        outfile << order.total_amount << std::endl;
+    }
+
+    outfile.close();
 }
 
 std::map<std::string, Holding>& JobCtrl::GetPosition() {

@@ -57,7 +57,7 @@ void Strategy2::ClearPosition() {
 
     // close sell order
     if (hold.exposure < 0) {
-        BuyMarket(kSymbol, hold.exposure);
+        BuyMarket(kSymbol, -hold.exposure);
     }
 }
 

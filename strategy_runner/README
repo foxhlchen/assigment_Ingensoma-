@@ -1,0 +1,21 @@
+strategy-runner
+==============
+
+This programe is an implementation of Technical Assignment of Inegnsoma Arbitrage Pte.
+
+Installation
+------------
+
+strategy-runner was developed and tested on Ubuntu 18.04.
+The plotting library requires python and matplotlib, that means you have to have a pyhon Installation first.
+On ubuntu, simplely run following commands:
+    sudo apt update
+    sudo apt install python-matplotlib python-numpy python2.7-dev.
+
+Next to compiler it:
+    ./configure --prefix=<installed dir>
+    make && make install
+
+Then create a directory called `data` in <installed dir>, then put market datafiles into this directory.
+start startegy-runner by:
+    ./runner

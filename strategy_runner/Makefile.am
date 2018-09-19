@@ -1,5 +1,5 @@
 bin_PROGRAMS = runner
-runner_CXXFLAGS = -g3 -I/usr/include/python2.7
+runner_CXXFLAGS = -I/usr/include/python2.7
 runner_LDFLAGS = -pthread
 runner_LDADD = -lpython2.7
 runner_SOURCES = src/datafeed.cc \

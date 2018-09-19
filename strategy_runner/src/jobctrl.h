@@ -25,6 +25,8 @@ public:
 
     void Plot();
 
+    void SaveDataTable();
+
 private:
     void MatchOrders(TickData& tick);
     void RecordProfitLoss(TickData& tick);
